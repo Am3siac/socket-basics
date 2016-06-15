@@ -12,7 +12,13 @@ io.on('connection', function(socket) {
 	socket.on('message', function(message) {
 		console.log('Message received: ' + message.text);
 
-		socket.broadcast.emit('message', message);
+		// emissione del messaggio verso tutti gli altri client
+		// collegati alla socket
+		//socket.broadcast.emit('message', message);
+
+		//emissione del messaggio verso tutti i client collegati
+		// alla socket, quindi anche verso me stesso
+		io.emit('message', message);
 	});
 
 	socket.emit('message', {
