@@ -33,6 +33,38 @@ function sendCurrentUsers (socket) {
 	});
 }
 
+// Sends private message to a user
+function sendPrivateMessage(message) {
+
+	var command = message.text.slice(0,8);
+	var secondPart = message.text.slice(9);
+	var firstSpaceIndex = secondPart.indexOf(' ');
+	var userName = secondPart.slice(0, firstSpaceIndex );
+	var privateMessage = secondPart.slice(firstSpaceIndex + 1);
+
+	var foundSocketId;
+
+	Object.keys(clientInfo).forEach(function (socketId) {
+		var userInfo = clientInfo[socketId];
+
+		if ( userName  === userInfo.name ) {
+			foundSocketId = socketId;
+		}
+
+	});
+
+	if (foundSocketId !== 'undefined') {
+		io.to(foundSocketId).emit('message', {
+			name: message.name + ' sent you a private message',
+			text: privateMessage,
+			timestamp: moment().valueOf()
+		});
+	}
+
+	
+
+}
+
 io.on('connection', function(socket) {
 	console.log('User connected via socket.io!');
 
@@ -69,6 +101,10 @@ io.on('connection', function(socket) {
 		if (message.text === '@currentUsers') {
 
 			sendCurrentUsers(socket);
+
+		} else if (message.text.startsWith('@private ')) {
+
+			sendPrivateMessage(message);
 
 		} else {
 
